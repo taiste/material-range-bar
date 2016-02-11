@@ -1243,35 +1243,28 @@ public class RangeBar extends View {
      */
     private void onActionDown(float x, float y) {
         if (mIsRangeBar) {
-            if (!mRightThumb.isPressed() && mLeftThumb.isInTargetZone(x, y)) {
+            if (!(mLeftThumb.isPressed() || mRightThumb.isPressed())) {
+                float leftThumbXDistance = mIsRangeBar ? Math.abs(mLeftThumb.getX() - x) : 0;
+                float rightThumbXDistance = Math.abs(mRightThumb.getX() - x);
 
-                pressPin(mLeftThumb);
-
-            } else if (!mLeftThumb.isPressed() && mRightThumb.isInTargetZone(x, y)) {
-
-                pressPin(mRightThumb);
+                if (leftThumbXDistance < rightThumbXDistance) {
+                    if (mIsRangeBar) {
+                        movePin(mLeftThumb, x);
+                        pressPin(mLeftThumb);
+                    }
+                } else {
+                    movePin(mRightThumb, x);
+                    pressPin(mRightThumb);
+                }
             }
+            updatePinPositions();
         } else {
             if (mRightThumb.isInTargetZone(x, y)) {
                 pressPin(mRightThumb);
             }
         }
 
-        if (!(mLeftThumb.isPressed() || mRightThumb.isPressed())) {
-            float leftThumbXDistance = mIsRangeBar ? Math.abs(mLeftThumb.getX() - x) : 0;
-            float rightThumbXDistance = Math.abs(mRightThumb.getX() - x);
 
-            if (leftThumbXDistance < rightThumbXDistance) {
-                if (mIsRangeBar) {
-                    movePin(mLeftThumb, x);
-                    pressPin(mLeftThumb);
-                }
-            } else {
-                movePin(mRightThumb, x);
-                pressPin(mRightThumb);
-            }
-            updatePinPositions();
-        }
     }
 
     /**
@@ -1318,6 +1311,11 @@ public class RangeBar extends View {
 
             mLeftIndex = newLeftIndex;
             mRightIndex = newRightIndex;
+
+            if (mIsRangeBar) {
+                mLeftThumb.setXValue(getPinValue(mLeftIndex));
+            }
+            mRightThumb.setXValue(getPinValue(mRightIndex));
 
             if (mListener != null) {
                 mListener.onRangeChangeListener(this, mLeftIndex, mRightIndex,
@@ -1472,13 +1470,16 @@ public class RangeBar extends View {
      * @param x     the x-coordinate to move the thumb to
      */
     private void movePin(PinView thumb, float x) {
-
         // If the user has moved their finger outside the range of the bar,
         // do not move the thumbs past the edge.
-        if (x < mBar.getLeftX() || x > mBar.getRightX()) {
-            // Do nothing.
-        } else if (thumb != null) {
-            thumb.setX(x);
+        if (thumb != null) {
+            if (x < mBar.getLeftX()) {
+                thumb.setX(mBar.getLeftX());
+            } else if (x > mBar.getRightX()){
+                thumb.setX((mBar.getRightX()));
+            } else {
+                thumb.setX(x);
+            }
             invalidate();
         }
     }
