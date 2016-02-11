@@ -98,8 +98,6 @@ public class RangeBar extends View {
 
     private static final float DEFAULT_BAR_PADDING_LEFT_DP = 0;
 
-    private static final float DEFAULT_BAR_PADDING_RIGHT_DP = 0;
-
     // Instance variables for all of the customizable attributes
 
     private float mTickHeightDP = DEFAULT_TICK_HEIGHT_DP;
@@ -171,8 +169,6 @@ public class RangeBar extends View {
     private float mBarPaddingBottom = DEFAULT_BAR_PADDING_BOTTOM_DP;
 
     private float mBarPaddingLeft = DEFAULT_BAR_PADDING_LEFT_DP;
-
-    private float mBarPaddingRight = DEFAULT_BAR_PADDING_RIGHT_DP;
 
     private int mActiveConnectingLineColor;
 
@@ -252,7 +248,6 @@ public class RangeBar extends View {
         bundle.putFloat("PIN_PADDING", mPinPadding);
         bundle.putFloat("BAR_PADDING_BOTTOM", mBarPaddingBottom);
         bundle.putFloat("BAR_PADDING_LEFT", mBarPaddingLeft);
-        bundle.putFloat("BAR_PADDING_RIGHT",mBarPaddingRight);
         bundle.putBoolean("IS_RANGE_BAR", mIsRangeBar);
         bundle.putBoolean("ARE_PINS_TEMPORARY", mArePinsTemporary);
         bundle.putInt("LEFT_INDEX", mLeftIndex);
@@ -291,7 +286,6 @@ public class RangeBar extends View {
             mPinPadding = bundle.getFloat("PIN_PADDING");
             mBarPaddingBottom = bundle.getFloat("BAR_PADDING_BOTTOM");
             mBarPaddingLeft = bundle.getFloat("BAR_PADDING_LEFT");
-            mBarPaddingRight = bundle.getFloat("BAR_PADDING_RIGHT");
             mIsRangeBar = bundle.getBoolean("IS_RANGE_BAR");
             mArePinsTemporary = bundle.getBoolean("ARE_PINS_TEMPORARY");
 
@@ -1185,7 +1179,7 @@ public class RangeBar extends View {
      * @return float marginLeft
      */
     private float getMarginLeft() {
-        return Math.max(mExpandedPinRadius, mCircleSize);
+        return Math.max(mExpandedPinRadius, Math.max(mCircleSize, mBarPaddingLeft));
     }
 
     /**
@@ -1262,6 +1256,22 @@ public class RangeBar extends View {
                 pressPin(mRightThumb);
             }
         }
+
+        if (!(mLeftThumb.isPressed() || mRightThumb.isPressed())) {
+            float leftThumbXDistance = mIsRangeBar ? Math.abs(mLeftThumb.getX() - x) : 0;
+            float rightThumbXDistance = Math.abs(mRightThumb.getX() - x);
+
+            if (leftThumbXDistance < rightThumbXDistance) {
+                if (mIsRangeBar) {
+                    movePin(mLeftThumb, x);
+                    pressPin(mLeftThumb);
+                }
+            } else {
+                movePin(mRightThumb, x);
+                pressPin(mRightThumb);
+            }
+            updatePinPositions();
+        }
     }
 
     /**
@@ -1287,28 +1297,32 @@ public class RangeBar extends View {
 
             if (leftThumbXDistance < rightThumbXDistance) {
                 if (mIsRangeBar) {
-                    mLeftThumb.setX(x);
+                    movePin(mLeftThumb, x);
                     releasePin(mLeftThumb);
                 }
             } else {
-                mRightThumb.setX(x);
+                movePin(mRightThumb, x);
                 releasePin(mRightThumb);
             }
 
-            // Get the updated nearest tick marks for each thumb.
-            final int newLeftIndex = mIsRangeBar ? mBar.getNearestTickIndex(mLeftThumb) : 0;
-            final int newRightIndex = mBar.getNearestTickIndex(mRightThumb);
-            // If either of the indices have changed, update and call the listener.
-            if (newLeftIndex != mLeftIndex || newRightIndex != mRightIndex) {
+            updatePinPositions();
+        }
+    }
 
-                mLeftIndex = newLeftIndex;
-                mRightIndex = newRightIndex;
+    private void updatePinPositions(){
+        // Get the updated nearest tick marks for each thumb.
+        final int newLeftIndex = mIsRangeBar ? mBar.getNearestTickIndex(mLeftThumb) : 0;
+        final int newRightIndex = mBar.getNearestTickIndex(mRightThumb);
+        // If either of the indices have changed, update and call the listener.
+        if (newLeftIndex != mLeftIndex || newRightIndex != mRightIndex) {
 
-                if (mListener != null) {
-                    mListener.onRangeChangeListener(this, mLeftIndex, mRightIndex,
-                            getPinValue(mLeftIndex),
-                            getPinValue(mRightIndex));
-                }
+            mLeftIndex = newLeftIndex;
+            mRightIndex = newRightIndex;
+
+            if (mListener != null) {
+                mListener.onRangeChangeListener(this, mLeftIndex, mRightIndex,
+                        getPinValue(mLeftIndex),
+                        getPinValue(mRightIndex));
             }
         }
     }
