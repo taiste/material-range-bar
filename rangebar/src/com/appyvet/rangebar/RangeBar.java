@@ -96,6 +96,10 @@ public class RangeBar extends View {
 
     private static final float DEFAULT_BAR_PADDING_BOTTOM_DP = 24;
 
+    private static final float DEFAULT_BAR_PADDING_LEFT_DP = 0;
+
+    private static final float DEFAULT_BAR_PADDING_RIGHT_DP = 0;
+
     // Instance variables for all of the customizable attributes
 
     private float mTickHeightDP = DEFAULT_TICK_HEIGHT_DP;
@@ -165,6 +169,10 @@ public class RangeBar extends View {
     private float mPinPadding = DEFAULT_PIN_PADDING_DP;
 
     private float mBarPaddingBottom = DEFAULT_BAR_PADDING_BOTTOM_DP;
+
+    private float mBarPaddingLeft = DEFAULT_BAR_PADDING_LEFT_DP;
+
+    private float mBarPaddingRight = DEFAULT_BAR_PADDING_RIGHT_DP;
 
     private int mActiveConnectingLineColor;
 
@@ -243,6 +251,8 @@ public class RangeBar extends View {
         bundle.putFloat("EXPANDED_PIN_RADIUS_DP", mExpandedPinRadius);
         bundle.putFloat("PIN_PADDING", mPinPadding);
         bundle.putFloat("BAR_PADDING_BOTTOM", mBarPaddingBottom);
+        bundle.putFloat("BAR_PADDING_LEFT", mBarPaddingLeft);
+        bundle.putFloat("BAR_PADDING_RIGHT",mBarPaddingRight);
         bundle.putBoolean("IS_RANGE_BAR", mIsRangeBar);
         bundle.putBoolean("ARE_PINS_TEMPORARY", mArePinsTemporary);
         bundle.putInt("LEFT_INDEX", mLeftIndex);
@@ -280,6 +290,8 @@ public class RangeBar extends View {
             mExpandedPinRadius = bundle.getFloat("EXPANDED_PIN_RADIUS_DP");
             mPinPadding = bundle.getFloat("PIN_PADDING");
             mBarPaddingBottom = bundle.getFloat("BAR_PADDING_BOTTOM");
+            mBarPaddingLeft = bundle.getFloat("BAR_PADDING_LEFT");
+            mBarPaddingRight = bundle.getFloat("BAR_PADDING_RIGHT");
             mIsRangeBar = bundle.getBoolean("IS_RANGE_BAR");
             mArePinsTemporary = bundle.getBoolean("ARE_PINS_TEMPORARY");
 
@@ -357,7 +369,7 @@ public class RangeBar extends View {
                 mCircleColor, mMinPinFont, mMaxPinFont, mArePinsTemporary);
 
         // Create the underlying bar.
-        final float marginLeft = Math.max(mExpandedPinRadius, mCircleSize);
+        final float marginLeft = Math.max(mExpandedPinRadius, Math.max(mCircleSize, mBarPaddingLeft));
 
         final float barLength = w - (2 * marginLeft);
         mBar = new Bar(ctx, marginLeft, yPos, barLength, mTickCount, mTickHeightDP, mTickColor,
@@ -759,6 +771,8 @@ public class RangeBar extends View {
         createPins();
     }
 
+
+
     /**
      * Gets the start tick.
      *
@@ -1088,6 +1102,9 @@ public class RangeBar extends View {
             mBarPaddingBottom = ta.getDimension(R.styleable.RangeBar_rangeBarPaddingBottom,
                     TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                             DEFAULT_BAR_PADDING_BOTTOM_DP, getResources().getDisplayMetrics()));
+            mBarPaddingLeft = ta.getDimension(R.styleable.RangeBar_rangeBarPaddingLeft,
+                    TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                            DEFAULT_BAR_PADDING_LEFT_DP, getResources().getDisplayMetrics()));
             mIsRangeBar = ta.getBoolean(R.styleable.RangeBar_rangeBar, true);
             mArePinsTemporary = ta.getBoolean(R.styleable.RangeBar_temporaryPins, true);
 

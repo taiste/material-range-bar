@@ -15,12 +15,14 @@
         <attr name="pinMinFont" format="dimension" />
         <attr name="pinMaxFont" format="dimension" />
         <attr name="rangeBarPaddingBottom" format="dimension" />
+        <attr name="rangeBarPaddingLeft" format="dimension" />
         <attr name="selectorColor" format="reference|color" />
         <attr name="rangeBar" format="boolean" />
         <attr name="temporaryPins" format="boolean" />
         <attr name="connectingLineWeight" format="dimension" />
         <attr name="connectingLineColor" format="reference|color" />
         <attr name="pinRadius" format="dimension" />
+
     </declare-styleable>
 
 </resources>
